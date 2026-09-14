@@ -1,0 +1,2 @@
+[console_scripts]
+shim = cli_shim:main

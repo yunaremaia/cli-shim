@@ -1,0 +1,9 @@
+README.md
+setup.py
+cli_shim/__init__.py
+cli_shim.egg-info/PKG-INFO
+cli_shim.egg-info/SOURCES.txt
+cli_shim.egg-info/dependency_links.txt
+cli_shim.egg-info/entry_points.txt
+cli_shim.egg-info/top_level.txt
+tests/test_cli_shim.py
