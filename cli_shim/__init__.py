@@ -51,7 +51,25 @@ def split_output(raw_stdout: str, raw_stderr: str, agent_mode: bool) -> tuple:
     clean_stdout = strip_ansi(raw_stdout) if agent_mode else raw_stdout
     clean_stderr = strip_ansi(raw_stderr) if agent_mode else raw_stderr
     return clean_stdout, clean_stderr
-
+    # Known CLI registry
+KNOWN_CLI_MAP = {
+    "docker": "Docker",
+    "docker-compose": "Docker",
+    "kubectl": "Kubernetes",
+    "helm": "Kubernetes",
+    "kustomize": "Kubernetes",
+    "aws": "Cloud",
+    "gcloud": "Cloud",
+    "az": "Cloud",
+    "npm": "Package Manager",
+    "yarn": "Package Manager",
+    "pnpm": "Package Manager",
+    "pip": "Package Manager",
+    "cargo": "Package Manager",
+    "make": "Build Tool",
+    "cmake": "Build Tool",
+    "ninja": "Build Tool",
+}
 
 # ─── Interactive Prompt Handling ────────────────────────────────────────────
 
@@ -110,10 +128,15 @@ def discover_json_flag(cmd: List[str]) -> Optional[str]:
         "gh": "--json",
         "kubectl": "-o=json",
         "docker": "--format=json",
+        "docker-compose": "--format=json",
         "npm": "--json",
+        "yarn": "--json",
+        "pnpm": "--json",
         "gcloud": "--format=json",
         "aws": "--output=json",
+        "az": "--output=json",
         "helm": "--output=json",
+        "kustomize": "--output=json",
         "terraform": "-json",
         "pulumi": "--json",
         "railway": "--json",

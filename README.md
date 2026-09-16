@@ -57,6 +57,20 @@ shim --manifest kubectl
 4. Runs with `TERM=dumb` to prevent fancy output
 5. Strips ANSI from stdout in agent mode (keeps it for humans)
 
+## Supported CLIs
+
+The known-CLI registry includes common tools with known agent-friendly output flags:
+
+- **Docker:** `docker`, `docker-compose`
+- **Kubernetes:** `kubectl`, `helm`, `kustomize`
+- **Cloud providers:** `aws`, `gcloud`, `az`
+- **Package managers:** `npm`, `yarn`, `pnpm`, `pip`, `cargo`
+- **Build tools:** `make`, `cmake`, `ninja`
+- **Infrastructure:** `terraform`, `pulumi`
+- **Other CLIs:** `gh`, `railway`, `vercel`, `netlify`, `stripe`, `linear`, `jira`, `databricks`
+
+JSON output flags are configured only for CLIs that provide a supported JSON output option. Tools without a standard JSON output flag remain available through the known-CLI registry without an invented JSON flag.
+
 ## Examples
 
 ```bash

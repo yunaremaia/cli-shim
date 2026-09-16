@@ -204,3 +204,65 @@ class TestAnsiRegex:
     
     def test_no_match(self):
         assert ANSI_ESCAPE.search("normal text") is None
+
+
+class TestExpandedCLIRegistry:
+    def test_docker_json(self):
+        assert discover_json_flag(["docker", "ps"]) == "--format=json"
+class TestKnownCLIRegistry:
+    def test_all_requested_clis_are_registered(self):
+        from cli_shim import KNOWN_CLI_MAP
+
+        expected = {
+            "docker",
+            "docker-compose",
+            "kubectl",
+            "helm",
+            "kustomize",
+            "aws",
+            "gcloud",
+            "az",
+            "npm",
+            "yarn",
+            "pnpm",
+            "pip",
+            "cargo",
+            "make",
+            "cmake",
+            "ninja",
+        }
+
+        assert expected.issubset(KNOWN_CLI_MAP)
+
+    def test_package_managers(self):
+        from cli_shim import KNOWN_CLI_MAP
+
+        assert KNOWN_CLI_MAP["npm"] == "Package Manager"
+        assert KNOWN_CLI_MAP["yarn"] == "Package Manager"
+        assert KNOWN_CLI_MAP["pnpm"] == "Package Manager"
+        assert KNOWN_CLI_MAP["pip"] == "Package Manager"
+        assert KNOWN_CLI_MAP["cargo"] == "Package Manager"
+
+    def test_build_tools(self):
+        from cli_shim import KNOWN_CLI_MAP
+
+        assert KNOWN_CLI_MAP["make"] == "Build Tool"
+        assert KNOWN_CLI_MAP["cmake"] == "Build Tool"
+        assert KNOWN_CLI_MAP["ninja"] == "Build Tool"
+    def test_docker_compose_json(self):
+        assert discover_json_flag(["docker-compose", "ps"]) == "--format=json"
+
+    def test_kubernetes_clis_json(self):
+        assert discover_json_flag(["kubectl", "get", "pods"]) == "-o=json"
+        assert discover_json_flag(["helm", "list"]) == "--output=json"
+        assert discover_json_flag(["kustomize", "build", "."]) == "--output=json"
+
+    def test_cloud_clis_json(self):
+        assert discover_json_flag(["aws", "ec2", "describe-instances"]) == "--output=json"
+        assert discover_json_flag(["gcloud", "compute", "instances", "list"]) == "--format=json"
+        assert discover_json_flag(["az", "vm", "list"]) == "--output=json"
+
+    def test_package_managers_json(self):
+        assert discover_json_flag(["npm", "list"]) == "--json"
+        assert discover_json_flag(["yarn", "info"]) == "--json"
+        assert discover_json_flag(["pnpm", "list"]) == "--json"
