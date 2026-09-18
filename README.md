@@ -73,6 +73,10 @@ shim --manifest railway
 # → {"name": "railway", "commands": [...], "json_flag": "--json"}
 ```
 
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, architecture details, and a step-by-step guide on adding new CLIs to the registry.
+
 ## License
 
 MIT — Yunare Maia, 2026
