@@ -88,11 +88,12 @@ def make_non_interactive(cmd: List[str]) -> List[str]:
         "apt-get": ["-y"],
         "gh": ["--yes"],
         "gcloud": ["--quiet"],
-        "kubectl": ["--yes"],
-        "helm": ["--no-hooks"],
-        "docker": ["-y"],
-        "railway": ["--yes"],
-        "vercel": ["--yes"],
+        "terraform": ["-auto-approve"],
+        "helm": ["--yes"],
+        "kubectl": [],  # no global --yes
+        "docker": [],  # no global -y
+        "railway": [],  # no --yes
+        "vercel": [],  # no --yes
         "netlify": ["--yes"],
     }
     
