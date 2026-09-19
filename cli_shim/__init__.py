@@ -89,11 +89,13 @@ def make_non_interactive(cmd: List[str]) -> List[str]:
         "gh": ["--yes"],
         "gcloud": ["--quiet"],
         "kubectl": ["--yes"],
-        "helm": ["--no-hooks"],
-        "docker": ["-y"],
+        "helm": ["--yes"],
+        "docker": [],  # No global non-interactive flag
         "railway": ["--yes"],
         "vercel": ["--yes"],
         "netlify": ["--yes"],
+        "terraform": ["-auto-approve"],
+        "docker-compose": [],
     }
     
     if not cmd:
@@ -294,6 +296,7 @@ def run_shim(
     agent_mode: Optional[bool] = None,
     force_json: bool = False,
     non_interactive: bool = False,
+    dry_run: bool = False,
     timeout: int = 120,
 ) -> ShimResult:
     """
@@ -309,11 +312,6 @@ def run_shim(
     if agent_mode is None:
         agent_mode = is_agent_mode() or not is_interactive_terminal()
     
-    # Resolve command path
-    cmd_path = shutil.which(cmd[0]) if cmd else None
-    if not cmd_path:
-        return ShimResult(127, "", f"Command not found: {cmd[0]}", cmd)
-    
     # Apply non-interactive mode
     if non_interactive:
         cmd = make_non_interactive(cmd)
@@ -323,6 +321,16 @@ def run_shim(
         json_flag = discover_json_flag(cmd)
         if json_flag:
             cmd = inject_json_flag(cmd, json_flag)
+    
+    # Dry-run mode: print command without execution
+    if dry_run:
+        print(" ".join(cmd))
+        return ShimResult(0, "", "", cmd)
+    
+    # Resolve command path
+    cmd_path = shutil.which(cmd[0]) if cmd else None
+    if not cmd_path:
+        return ShimResult(127, "", f"Command not found: {cmd[0]}", cmd)
     
     # Execute
     try:
@@ -393,6 +401,12 @@ def main():
         help="Raw output (no normalization, for humans)",
     )
     parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        default=False,
+        help="Print command without executing",
+    )
+    parser.add_argument(
         "command",
         nargs=argparse.REMAINDER,
         help="Command to wrap (e.g., shim --json gh pr list)",
@@ -429,6 +443,7 @@ def main():
         agent_mode=args.agent_mode if args.agent_mode is not None else None,
         force_json=args.json,
         non_interactive=args.non_interactive,
+        dry_run=args.dry_run,
         timeout=args.timeout,
     )
     

@@ -266,3 +266,63 @@ class TestKnownCLIRegistry:
         assert discover_json_flag(["npm", "list"]) == "--json"
         assert discover_json_flag(["yarn", "info"]) == "--json"
         assert discover_json_flag(["pnpm", "list"]) == "--json"
+
+# Test cases for updated non-interactive mappings and dry-run support
+
+class TestNonInteractiveMappings:
+    def test_docker_no_global_flag(self):
+        # Docker should not have a global -y flag
+        result = make_non_interactive(["docker", "build", "-t", "img:tag", "."])
+        assert result[0] == "docker"
+        assert result[1:] == ["build", "-t", "img:tag", "."]
+        # Should not have -y in the command
+        assert "-y" not in result
+        
+    def test_helm_has_yes_flag(self):
+        # Helm should use --yes for non-interactive
+        result = make_non_interactive(["helm", "upgrade", "my-release", "./chart"])
+        assert "--yes" in result
+        assert "upgrade" in result
+        assert "my-release" in result
+        
+    def test_kubectl_has_yes_flag(self):
+        # kubectl should use --yes
+        result = make_non_interactive(["kubectl", "apply", "-f", "manifest.yaml"])
+        assert "--yes" in result
+        
+    def test_terraform_has_auto_approve(self):
+        # terraform apply needs -auto-approve
+        result = make_non_interactive(["terraform", "apply", "main.tfplan"])
+        assert "-auto-approve" in result
+        
+    def test_docker_compose_no_global_flag(self):
+        # docker-compose should not have global -y flag
+        result = make_non_interactive(["docker-compose", "up", "-d"])
+        assert result[0] == "docker-compose"
+        assert result[1:] == ["up", "-d"]
+        assert "-y" not in result
+
+class TestDryRunMode:
+    def test_dry_run_shows_command(self, capsys):
+        result = run_shim(["echo", "hello"], dry_run=True, timeout=5)
+        captured = capsys.readouterr()
+        assert "echo hello" in captured.out
+        assert result.success is True
+        
+    def test_dry_run_does_not_execute(self, capsys):
+        # Use a command that would fail if executed (but won't in dry-run)
+        result = run_shim(["nonexistentcmd123"], dry_run=True, timeout=5)
+        assert result.success is True
+        
+    def test_dry_run_with_json_flag(self, capsys):
+        result = run_shim(["gh", "pr", "list"], dry_run=True, timeout=5)
+        captured = capsys.readouterr()
+        assert "gh pr list" in captured.out
+        assert result.success is True
+        
+    def test_dry_run_with_non_interactive(self, capsys):
+        result = run_shim(["npm", "install"], dry_run=True, non_interactive=True, timeout=5)
+        captured = capsys.readouterr()
+        assert "npm" in captured.out
+        assert "--yes" in captured.out or "--non-interactive" in captured.out
+
