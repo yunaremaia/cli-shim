@@ -163,14 +163,32 @@ def discover_json_flag(cmd: List[str]) -> Optional[str]:
 
 
 def inject_json_flag(cmd: List[str], flag: str) -> List[str]:
-    """Insert JSON flag into command after the subcommand."""
+    """Insert JSON flag into command after the subcommand and before extra flags."""
     if not cmd:
         return cmd
-    
-    # Insert after first arg (subcommand) if exists
-    if len(cmd) >= 2 and not cmd[1].startswith("-"):
-        return [cmd[0], cmd[1]] + [flag] + cmd[2:]
-    return [cmd[0], flag] + cmd[1:]
+    if len(cmd) < 2:
+        return cmd + [flag]
+
+    limit = cmd.index("--") if "--" in cmd else len(cmd)
+
+    # If the command starts with positional words after cmd[0]:
+    if not cmd[1].startswith("-"):
+        insert_pos = 1
+        while insert_pos < limit and not cmd[insert_pos].startswith("-"):
+            insert_pos += 1
+        return cmd[:insert_pos] + [flag] + cmd[insert_pos:]
+
+    # If flags precede the subcommand (e.g. gh --repo owner/repo pr list):
+    subcmd_end = None
+    for i in range(limit - 1, 0, -1):
+        if not cmd[i].startswith("-"):
+            subcmd_end = i + 1
+            break
+
+    if subcmd_end is not None:
+        return cmd[:subcmd_end] + [flag] + cmd[subcmd_end:]
+
+    return cmd[:limit] + [flag] + cmd[limit:]
 
 
 # ─── CLI Manifest Discovery ─────────────────────────────────────────────────

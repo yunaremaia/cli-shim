@@ -100,16 +100,36 @@ class TestDiscoverJsonFlag:
 class TestInjectJsonFlag:
     def test_simple(self):
         result = inject_json_flag(["gh", "pr", "list"], "--json")
-        assert result == ["gh", "pr", "--json", "list"]
-    
+        assert result == ["gh", "pr", "list", "--json"]
+
     def test_no_subcommand(self):
         result = inject_json_flag(["gh"], "--json")
         assert result == ["gh", "--json"]
-    
+
     def test_flag_before_subcommand(self):
-        # When first arg is a flag, insert after command name
+        # When flags precede the subcommand, insert after subcommand
         result = inject_json_flag(["gh", "--repo", "owner/repo", "pr", "list"], "--json")
-        assert result == ["gh", "--json", "--repo", "owner/repo", "pr", "list"]
+        assert result == ["gh", "--repo", "owner/repo", "pr", "list", "--json"]
+
+    def test_kubectl_get_pods(self):
+        result = inject_json_flag(["kubectl", "get", "pods"], "-o=json")
+        assert result == ["kubectl", "get", "pods", "-o=json"]
+
+    def test_kubectl_get_pods_with_flags(self):
+        result = inject_json_flag(["kubectl", "get", "pods", "-o", "wide"], "--json")
+        assert result == ["kubectl", "get", "pods", "--json", "-o", "wide"]
+
+    def test_docker_ps(self):
+        result = inject_json_flag(["docker", "ps"], "--json")
+        assert result == ["docker", "ps", "--json"]
+
+    def test_npm_install(self):
+        result = inject_json_flag(["npm", "install"], "--json")
+        assert result == ["npm", "install", "--json"]
+
+    def test_with_dash_dash_separator(self):
+        result = inject_json_flag(["kubectl", "exec", "pod", "--", "sh", "-c", "uptime"], "-o=json")
+        assert result == ["kubectl", "exec", "pod", "-o=json", "--", "sh", "-c", "uptime"]
 
 
 class TestDiscoverManifest:
