@@ -20,7 +20,7 @@ Cloudflare rebuilt Wrangler, HuggingFace rebuilt `hf`, and Railway tracks specif
 ## Install
 
 ```bash
-pip install cli-shim
+pip install git+https://github.com/yunaremaia/cli-shim.git
 ```
 
 ## Usage
