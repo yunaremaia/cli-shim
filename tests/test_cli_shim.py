@@ -340,6 +340,13 @@ class TestRunShim:
         result = run_shim(["nonexistentcmd123"], agent_mode=True, timeout=5)
         assert result.returncode == 127
         assert "not found" in result.stderr
+
+    def test_empty_command_list(self):
+        """An empty cmd must not crash with IndexError (#79)."""
+        result = run_shim([], agent_mode=True, timeout=5)
+        assert result.returncode == 127
+        assert result.stdout == ""
+        assert result.stderr == "No command provided"
     
     def test_with_json_flag(self):
         # echo doesn't have JSON but shouldn't crash

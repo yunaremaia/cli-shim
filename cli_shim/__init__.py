@@ -336,7 +336,9 @@ def run_shim(
         agent_mode = is_agent_mode() or not is_interactive_terminal()
     
     # Resolve command path
-    cmd_path = shutil.which(cmd[0]) if cmd else None
+    if not cmd:
+        return ShimResult(127, "", "No command provided", cmd)
+    cmd_path = shutil.which(cmd[0])
     if not cmd_path:
         return ShimResult(127, "", f"Command not found: {cmd[0]}", cmd)
     
